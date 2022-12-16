@@ -26,9 +26,6 @@ func Add(c *Channel) {
 func RemoveByFrontEnd(id string, code int, text string) {
 	reason := strKit.Format("CloseHandler with code(%d) and text(%s)", code, text)
 	Remove(id, reason)
-
-	// TODO: 通过RocketMQ5，通知WebSocket连接的断开
-
 }
 
 func Remove(id, reason string) {

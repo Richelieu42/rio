@@ -4,7 +4,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
 	"github.com/richelieu42/go-scales/src/idKit"
-	"github.com/sirupsen/logrus"
+	"github.com/richelieu42/rio"
 	"sync"
 	"time"
 )
@@ -24,8 +24,12 @@ type (
 	}
 )
 
+func (c *Channel) GetId() string {
+	return c.id
+}
+
 // ReceiveMessages 接收 WebSocket客户端 发来的消息（会阻塞直至连接断开）
-func (c *Channel) ReceiveMessages() {
+func (c *Channel) ReceiveMessages(listener rio.Listener) {
 	for {
 		if c.closed {
 			break
@@ -36,8 +40,9 @@ func (c *Channel) ReceiveMessages() {
 			break
 		}
 
-		messageText := string(p)
-		logrus.Infof("Channel(id: %s) receives a message(type: %d, text: %s).", c.id, messageType, messageText)
+		if listener != nil {
+			listener.OnMessage(c, messageType, p)
+		}
 	}
 }
 
@@ -61,7 +66,7 @@ func (c *Channel) PushMessage(messageType int, data []byte) error {
 	return err
 }
 
-func WrapToChannel(conn *websocket.Conn) *Channel {
+func WrapToChannel(conn *websocket.Conn, listener rio.Listener) *Channel {
 	id := idKit.NewULID()
 	c := &Channel{
 		id:     id,
@@ -72,8 +77,11 @@ func WrapToChannel(conn *websocket.Conn) *Channel {
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		c.closed = true
-
 		RemoveByFrontEnd(id, code, text)
+
+		if listener != nil {
+			listener.OnClose(c, code, text)
+		}
 
 		// 默认的close handler
 		message := websocket.FormatCloseMessage(code, text)
