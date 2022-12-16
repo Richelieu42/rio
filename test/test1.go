@@ -4,8 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/strKit"
-	"github.com/richelieu42/rio"
 	"github.com/richelieu42/rio/src/manager"
+	"github.com/richelieu42/rio/src/rio"
 	"github.com/sirupsen/logrus"
 	"net/http"
 )
