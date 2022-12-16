@@ -3,6 +3,7 @@ package manager
 import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
+	"github.com/richelieu42/go-scales/src/core/strKit"
 	"github.com/richelieu42/go-scales/src/idKit"
 	"sync"
 	"time"
@@ -76,7 +77,9 @@ func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 
 	conn.SetCloseHandler(func(code int, text string) error {
 		c.closed = true
-		RemoveByFrontEnd(id, code, text)
+
+		reason := strKit.Format("closure by frontend with code(%d) and text(%s)", code, text)
+		Remove(id, reason)
 
 		if listener != nil {
 			listener.OnClose(c, code, text)
