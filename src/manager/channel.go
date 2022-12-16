@@ -17,6 +17,10 @@ type (
 		closed bool
 
 		lock *sync.Mutex
+
+		bsId   string
+		group  string
+		userId string
 	}
 )
 

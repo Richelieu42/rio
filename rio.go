@@ -2,6 +2,7 @@ package rio
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/richelieu42/rio/src/manager"
 )
 
 type (
@@ -12,13 +13,13 @@ type (
 		// OnFailureToUpgrade 将连接升级为WebSocket协议失败时
 		OnFailureToUpgrade(ctx *gin.Context)
 
-		OnHandshake(c *Channel)
+		OnHandshake(c *manager.Channel)
 
 		// OnMessage 收到 WebSocket客户端 发来的消息
-		OnMessage(messageType int, data []byte)
+		OnMessage(c *manager.Channel, messageType int, data []byte)
 
 		// OnCloseByFrontEnd WebSocket连接断开（因为前端）时
-		OnCloseByFrontEnd()
+		OnCloseByFrontEnd(c *manager.Channel)
 	}
 )
 
