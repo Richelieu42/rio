@@ -25,10 +25,7 @@ type (
 
 // NewGinHandler
 /*
-@param
-
-
-
+@param listener 可以为nil，但不推荐这么干
 */
 func NewGinHandler(listener Listener) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
