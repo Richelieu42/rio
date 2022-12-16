@@ -29,15 +29,15 @@ func (t *TestListener) OnFailureToUpgrade(ctx *gin.Context, err error) {
 
 func (t *TestListener) OnHandshake(c *manager.Channel) {
 	logrus.Infof("Channel(id: %s) is established.", c.GetId())
-	_ = c.PushMessage(websocket.BinaryMessage, []byte(strKit.Format("Hello, id of this channel is [%s].", c.GetId())))
+	_ = c.PushMessage(websocket.TextMessage, []byte(strKit.Format("Hello, id of this channel is [%s].", c.GetId())))
 }
 
 func (t *TestListener) OnMessage(c *manager.Channel, messageType int, data []byte) {
 	logrus.Infof("Channel(id: %s) receives a message(type: %d, data: %s)", c.GetId(), messageType, string(data))
 }
 
-func (t *TestListener) OnClose(c *manager.Channel, code int, text string) {
-	logrus.Infof("Channel(id: %s) is closed with code(%d) and text(%s).", c.GetId(), code, text)
+func (t *TestListener) OnCloseByFrontend(c *manager.Channel, code int, text string) {
+	logrus.Infof("Channel(id: %s) is closed by frontend with code(%d) and text(%s).", c.GetId(), code, text)
 }
 
 func main() {

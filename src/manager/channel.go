@@ -82,7 +82,7 @@ func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 		Remove(id, reason)
 
 		if listener != nil {
-			listener.OnClose(c, code, text)
+			listener.OnCloseByFrontend(c, code, text)
 		}
 
 		// 默认的close handler
