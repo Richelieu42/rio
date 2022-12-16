@@ -30,6 +30,9 @@ func (t *TestListener) OnFailureToUpgrade(ctx *gin.Context, err error) {
 func (t *TestListener) OnHandshake(c *manager.Channel) {
 	logrus.Infof("Channel(id: %s) is established.", c.GetId())
 	_ = c.PushMessage(websocket.TextMessage, []byte(strKit.Format("Hello, id of this channel is [%s].", c.GetId())))
+
+	_ = c.PushMessage(websocket.TextMessage, []byte("后端主动关闭"))
+	c.Close()
 }
 
 func (t *TestListener) OnMessage(c *manager.Channel, messageType int, data []byte) {

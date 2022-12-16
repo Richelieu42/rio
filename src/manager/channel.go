@@ -28,6 +28,13 @@ func (c *Channel) GetId() string {
 	return c.id
 }
 
+// Close TODO: 后端主动关闭连接
+func (c *Channel) Close() {
+	c.closed = true
+
+	_ = c.conn.Close()
+}
+
 // ReceiveMessages 接收 WebSocket客户端 发来的消息（会阻塞直至连接断开）
 func (c *Channel) ReceiveMessages(listener Listener) {
 	for {
