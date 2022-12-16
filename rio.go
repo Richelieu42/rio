@@ -8,29 +8,11 @@ import (
 	"time"
 )
 
-type (
-	Listener interface {
-		// OnIllegalRequest 判断请求非法时（不是WebSocket请求）
-		OnIllegalRequest(ctx *gin.Context)
-
-		// OnFailureToUpgrade 将连接升级为WebSocket协议失败时
-		OnFailureToUpgrade(ctx *gin.Context, err error)
-
-		OnHandshake(c *manager.Channel)
-
-		// OnMessage 收到 WebSocket客户端 发来的消息
-		OnMessage(c *manager.Channel, messageType int, data []byte)
-
-		// OnClose WebSocket连接断开（因为前端）时
-		OnClose(c *manager.Channel, code int, text string)
-	}
-)
-
 // NewGinHandler
 /*
 @param listener 可以为nil，但不推荐这么干
 */
-func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
+func NewGinHandler(listener manager.Listener) (gin.HandlerFunc, error) {
 	var upgrader = websocket.Upgrader{
 		HandshakeTimeout: time.Second * 6,
 		CheckOrigin: func(r *http.Request) bool {

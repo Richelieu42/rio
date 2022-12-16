@@ -4,7 +4,6 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
 	"github.com/richelieu42/go-scales/src/idKit"
-	"github.com/richelieu42/rio"
 	"sync"
 	"time"
 )
@@ -29,7 +28,7 @@ func (c *Channel) GetId() string {
 }
 
 // ReceiveMessages 接收 WebSocket客户端 发来的消息（会阻塞直至连接断开）
-func (c *Channel) ReceiveMessages(listener rio.Listener) {
+func (c *Channel) ReceiveMessages(listener Listener) {
 	for {
 		if c.closed {
 			break
@@ -66,7 +65,7 @@ func (c *Channel) PushMessage(messageType int, data []byte) error {
 	return err
 }
 
-func WrapToChannel(conn *websocket.Conn, listener rio.Listener) *Channel {
+func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 	id := idKit.NewULID()
 	c := &Channel{
 		id:     id,
