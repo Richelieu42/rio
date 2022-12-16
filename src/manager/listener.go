@@ -17,7 +17,10 @@ type (
 		// OnMessage 收到 WebSocket客户端 发来的消息
 		OnMessage(c *Channel, messageType int, data []byte)
 
-		// OnCloseByFrontend WebSocket连接因为前端而断开
+		// OnCloseByFrontend 前端主动关闭WebSocket连接
 		OnCloseByFrontend(c *Channel, code int, text string)
+
+		// OnCloseByBackend 后端主动关闭WebSocket连接
+		OnCloseByBackend(c *Channel)
 	}
 )

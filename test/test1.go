@@ -43,6 +43,10 @@ func (t *TestListener) OnCloseByFrontend(c *manager.Channel, code int, text stri
 	logrus.Infof("Channel(id: %s) is closed by frontend with code(%d) and text(%s).", c.GetId(), code, text)
 }
 
+func (t *TestListener) OnCloseByBackend(c *manager.Channel) {
+	logrus.Infof("Channel(id: %s) is closed by backend.", c.GetId())
+}
+
 func main() {
 	listener := &TestListener{}
 	handler, err := rio.NewGinHandler(listener)

@@ -18,9 +18,10 @@ type (
 
 		lock *sync.Mutex
 
-		bsId   string
-		group  string
-		userId string
+		bsId     string
+		group    string
+		userId   string
+		listener Listener
 	}
 )
 
@@ -28,11 +29,16 @@ func (c *Channel) GetId() string {
 	return c.id
 }
 
-// Close TODO: 后端主动关闭连接
+// Close 后端主动关闭连接
 func (c *Channel) Close() {
 	c.closed = true
 
 	_ = c.conn.Close()
+	Remove(c.id, "closure by backend")
+
+	if c.listener != nil {
+		c.listener.OnCloseByBackend(c)
+	}
 }
 
 // ReceiveMessages 接收 WebSocket客户端 发来的消息（会阻塞直至连接断开）
@@ -76,10 +82,11 @@ func (c *Channel) PushMessage(messageType int, data []byte) error {
 func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 	id := idKit.NewULID()
 	c := &Channel{
-		id:     id,
-		conn:   conn,
-		closed: false,
-		lock:   new(sync.Mutex),
+		id:       id,
+		conn:     conn,
+		closed:   false,
+		lock:     new(sync.Mutex),
+		listener: listener,
 	}
 
 	conn.SetCloseHandler(func(code int, text string) error {
@@ -88,8 +95,8 @@ func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 		reason := strKit.Format("closure by frontend with code(%d) and text(%s)", code, text)
 		Remove(id, reason)
 
-		if listener != nil {
-			listener.OnCloseByFrontend(c, code, text)
+		if c.listener != nil {
+			c.listener.OnCloseByFrontend(c, code, text)
 		}
 
 		// 默认的close handler
