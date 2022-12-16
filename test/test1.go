@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/strKit"
 	"github.com/richelieu42/rio"
 	"github.com/richelieu42/rio/src/manager"
@@ -21,11 +22,14 @@ func (t *TestListener) OnIllegalRequest(ctx *gin.Context) {
 }
 
 func (t *TestListener) OnFailureToUpgrade(ctx *gin.Context, err error) {
-	logrus.Errorf("Fail to upgrade, error: %v", err)
+	logrus.Errorf("Fail to upgrade request(Proto: %s, Method: %s, Connection: %s, Upgrade: %s, RequestURI: %s), error: %v",
+		ctx.Request.Proto, ctx.Request.Method, ctx.Request.Header["Connection"], ctx.Request.Header["Upgrade"], ctx.Request.RequestURI,
+		err)
 }
 
 func (t *TestListener) OnHandshake(c *manager.Channel) {
 	logrus.Infof("Channel(id: %s) is established.", c.GetId())
+	_ = c.PushMessage(websocket.BinaryMessage, []byte(strKit.Format("Hello, id of this channel is [%s].", c.GetId())))
 }
 
 func (t *TestListener) OnMessage(c *manager.Channel, messageType int, data []byte) {
