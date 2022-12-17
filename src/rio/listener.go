@@ -1,4 +1,4 @@
-package manager
+package rio
 
 import (
 	"github.com/gin-gonic/gin"
@@ -17,10 +17,10 @@ type (
 		// OnMessage 收到 WebSocket客户端 发来的消息
 		OnMessage(c *Channel, messageType int, data []byte)
 
-		// OnCloseByFrontend 前端主动关闭WebSocket连接
+		// OnCloseByFrontend WebSocket客户端主动关闭连接
 		OnCloseByFrontend(c *Channel, code int, text string)
 
-		// OnCloseByBackend 后端主动关闭WebSocket连接
+		// OnCloseByBackend WebSocket服务端主动关闭连接
 		OnCloseByBackend(c *Channel)
 	}
 )

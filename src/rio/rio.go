@@ -3,8 +3,6 @@ package rio
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/richelieu42/go-scales/src/idKit"
-	"github.com/richelieu42/rio/src/manager"
 	"net/http"
 	"time"
 )
@@ -13,7 +11,7 @@ import (
 /*
 @param listener 可以为nil，但不推荐这么干
 */
-func NewGinHandler(listener manager.Listener) (gin.HandlerFunc, error) {
+func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 	var upgrader = websocket.Upgrader{
 		HandshakeTimeout: time.Second * 6,
 		CheckOrigin: func(r *http.Request) bool {
@@ -31,7 +29,6 @@ func NewGinHandler(listener manager.Listener) (gin.HandlerFunc, error) {
 			return
 		}
 
-		id := idKit.NewULID()
 		conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, ctx.Writer.Header())
 		if err != nil {
 			// 升级为WebSocket协议失败
@@ -42,11 +39,27 @@ func NewGinHandler(listener manager.Listener) (gin.HandlerFunc, error) {
 		}
 		defer conn.Close()
 
-		c := manager.WrapToChannel(id, conn, listener)
-		manager.Add(c)
+		c := WrapToChannel(conn, listener)
+		Add(c)
 		if listener != nil {
 			listener.OnHandshake(c)
 		}
-		c.ReceiveMessages(listener)
+
+		for {
+			messageType, p, err := conn.ReadMessage()
+			if err != nil {
+				if Remove(c.id) {
+					if listener != nil {
+						listener.OnCloseByBackend(c)
+					}
+				}
+				break
+			}
+
+			if listener != nil {
+				listener.OnMessage(c, messageType, p)
+			}
+		}
+
 	}, nil
 }

@@ -1,4 +1,4 @@
-package manager
+package rio
 
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"
@@ -32,6 +32,9 @@ func Remove(id string) bool {
 	lock.Lock()
 	defer lock.Unlock()
 
-	_, ok := mapKit.Remove(all, id)
+	c, ok := mapKit.Remove(all, id)
+	if ok {
+		c.closed = true
+	}
 	return ok
 }

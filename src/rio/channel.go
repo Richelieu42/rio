@@ -1,8 +1,9 @@
-package manager
+package rio
 
 import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
+	"github.com/richelieu42/go-scales/src/idKit"
 	"github.com/richelieu42/go-scales/src/jsonKit"
 	"sync"
 	"time"
@@ -40,24 +41,6 @@ func (c *Channel) Close() {
 	}
 }
 
-// ReceiveMessages 接收 WebSocket客户端 发来的消息（会阻塞直至连接断开）
-func (c *Channel) ReceiveMessages(listener Listener) {
-	for {
-		if c.closed {
-			break
-		}
-		messageType, p, err := c.conn.ReadMessage()
-		if err != nil {
-			c.closed = true
-			break
-		}
-
-		if listener != nil {
-			listener.OnMessage(c, messageType, p)
-		}
-	}
-}
-
 // PushMessage 推送消息给WebSocket客户端.
 /*
 @param messageType websocket.TextMessage || websocket.BinaryMessage
@@ -91,7 +74,8 @@ func (c *Channel) PushJson(messageType int, obj interface{}) error {
 	return c.PushMessage(messageType, data)
 }
 
-func WrapToChannel(id string, conn *websocket.Conn, listener Listener) *Channel {
+func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
+	id := idKit.NewULID()
 	c := &Channel{
 		id:       id,
 		conn:     conn,
