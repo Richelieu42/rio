@@ -2,19 +2,14 @@ package rio
 
 import (
 	"github.com/gorilla/websocket"
-	"github.com/richelieu42/go-scales/src/core/errorKit"
-	"github.com/richelieu42/go-scales/src/idKit"
 	"github.com/richelieu42/go-scales/src/jsonKit"
 	"sync"
-	"time"
 )
 
 type (
 	Channel struct {
 		id   string
 		conn *websocket.Conn
-		// true: 当前websocket连接已经被关闭（断开）
-		closed bool
 
 		lock *sync.Mutex
 
@@ -31,13 +26,9 @@ func (c *Channel) GetId() string {
 
 // Close 后端主动关闭连接
 func (c *Channel) Close() {
-	c.closed = true
-
 	_ = c.conn.Close()
 	if Remove(c.id) {
-		if c.listener != nil {
-			c.listener.OnCloseByBackend(c)
-		}
+		c.listener.OnCloseByBackend(c)
 	}
 }
 
@@ -50,15 +41,7 @@ func (c *Channel) PushMessage(messageType int, data []byte) error {
 	c.lock.Lock()
 	defer c.lock.Unlock()
 
-	if c.closed {
-		return errorKit.Simple("Channel(id: %s) is already closed", c.id)
-	}
-
-	err := c.conn.WriteMessage(messageType, data)
-	if err != nil {
-		c.closed = true
-	}
-	return err
+	return c.conn.WriteMessage(messageType, data)
 }
 
 // PushJson 先序列化为json字符串，再推送给WebSocket客户端.
@@ -72,31 +55,4 @@ func (c *Channel) PushJson(messageType int, obj interface{}) error {
 	}
 
 	return c.PushMessage(messageType, data)
-}
-
-func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
-	id := idKit.NewULID()
-	c := &Channel{
-		id:       id,
-		conn:     conn,
-		closed:   false,
-		lock:     new(sync.Mutex),
-		listener: listener,
-	}
-
-	conn.SetCloseHandler(func(code int, text string) error {
-		c.closed = true
-
-		if Remove(id) {
-			if c.listener != nil {
-				c.listener.OnCloseByFrontend(c, code, text)
-			}
-		}
-
-		// 默认的close handler
-		message := websocket.FormatCloseMessage(code, text)
-		_ = conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
-		return nil
-	})
-	return c
 }

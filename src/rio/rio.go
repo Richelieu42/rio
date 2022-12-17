@@ -3,15 +3,22 @@ package rio
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/richelieu42/go-scales/src/assertKit"
+	"github.com/richelieu42/go-scales/src/idKit"
 	"net/http"
+	"sync"
 	"time"
 )
 
 // NewGinHandler
 /*
-@param listener 可以为nil，但不推荐这么干
+@param listener 不能为nil
 */
 func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
+	if err := assertKit.NotNil(listener, "listener"); err != nil {
+		return nil, err
+	}
+
 	var upgrader = websocket.Upgrader{
 		HandshakeTimeout: time.Second * 6,
 		CheckOrigin: func(r *http.Request) bool {
@@ -19,47 +26,49 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 			return true
 		},
 	}
-
 	return func(ctx *gin.Context) {
 		// 先判断是不是websocket请求
 		if !websocket.IsWebSocketUpgrade(ctx.Request) {
-			if listener != nil {
-				listener.OnIllegalRequest(ctx)
-			}
+			listener.OnIllegalRequest(ctx)
 			return
 		}
 
 		conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, ctx.Writer.Header())
 		if err != nil {
 			// 升级为WebSocket协议失败
-			if listener != nil {
-				listener.OnFailureToUpgrade(ctx, err)
-			}
+			listener.OnFailureToUpgrade(ctx, err)
 			return
 		}
 		defer conn.Close()
 
-		c := WrapToChannel(conn, listener)
-		Add(c)
-		if listener != nil {
-			listener.OnHandshake(c)
+		c := &Channel{
+			id:       idKit.NewULID(),
+			conn:     conn,
+			lock:     new(sync.Mutex),
+			listener: listener,
 		}
+		conn.SetCloseHandler(func(code int, text string) error {
+			// 前端主动关闭
+			if Remove(c.id) {
+				c.listener.OnCloseByFrontend(c, code, text)
+			}
 
+			// 默认的close handler
+			message := websocket.FormatCloseMessage(code, text)
+			_ = conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
+			return nil
+		})
+		Add(c)
+		listener.OnHandshake(c)
 		for {
 			messageType, p, err := conn.ReadMessage()
 			if err != nil {
 				if Remove(c.id) {
-					if listener != nil {
-						listener.OnCloseByBackend(c)
-					}
+					listener.OnCloseByBackend(c)
 				}
 				break
 			}
-
-			if listener != nil {
-				listener.OnMessage(c, messageType, p)
-			}
+			listener.OnMessage(c, messageType, p)
 		}
-
 	}, nil
 }
