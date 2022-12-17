@@ -3,6 +3,7 @@ package rio
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
+	"github.com/richelieu42/go-scales/src/idKit"
 	"github.com/richelieu42/rio/src/manager"
 	"net/http"
 	"time"
@@ -30,6 +31,7 @@ func NewGinHandler(listener manager.Listener) (gin.HandlerFunc, error) {
 			return
 		}
 
+		id := idKit.NewULID()
 		conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, ctx.Writer.Header())
 		if err != nil {
 			// 升级为WebSocket协议失败
@@ -38,10 +40,9 @@ func NewGinHandler(listener manager.Listener) (gin.HandlerFunc, error) {
 			}
 			return
 		}
-		// ！！！：下面一行代码至关重要，否则会导致WebSocket连接关不掉
 		defer conn.Close()
 
-		c := manager.WrapToChannel(conn, listener)
+		c := manager.WrapToChannel(id, conn, listener)
 		manager.Add(c)
 		if listener != nil {
 			listener.OnHandshake(c)

@@ -1,6 +1,7 @@
 package manager
 
 import (
+	"github.com/richelieu42/go-scales/src/core/mapKit"
 	"github.com/richelieu42/go-scales/src/core/strKit"
 	"sync"
 )
@@ -19,13 +20,18 @@ func Add(c *Channel) {
 	all[c.id] = c
 }
 
-func Remove(id, reason string) {
+// Remove
+/*
+@return
+*/
+func Remove(id string) bool {
 	if strKit.IsEmpty(id) {
-		return
+		return false
 	}
 
 	lock.Lock()
 	defer lock.Unlock()
 
-	delete(all, id)
+	_, ok := mapKit.Remove(all, id)
+	return ok
 }

@@ -1,10 +1,8 @@
 package manager
 
 import (
-	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
-	"github.com/richelieu42/go-scales/src/idKit"
 	"github.com/richelieu42/go-scales/src/jsonKit"
 	"sync"
 	"time"
@@ -35,10 +33,10 @@ func (c *Channel) Close() {
 	c.closed = true
 
 	_ = c.conn.Close()
-	Remove(c.id, "closure by backend")
-
-	if c.listener != nil {
-		c.listener.OnCloseByBackend(c)
+	if Remove(c.id) {
+		if c.listener != nil {
+			c.listener.OnCloseByBackend(c)
+		}
 	}
 }
 
@@ -93,8 +91,7 @@ func (c *Channel) PushJson(messageType int, obj interface{}) error {
 	return c.PushMessage(messageType, data)
 }
 
-func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
-	id := idKit.NewULID()
+func WrapToChannel(id string, conn *websocket.Conn, listener Listener) *Channel {
 	c := &Channel{
 		id:       id,
 		conn:     conn,
@@ -106,11 +103,10 @@ func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 	conn.SetCloseHandler(func(code int, text string) error {
 		c.closed = true
 
-		reason := fmt.Sprintf("closure by frontend with code(%d) and text(%s)", code, text)
-		Remove(id, reason)
-
-		if c.listener != nil {
-			c.listener.OnCloseByFrontend(c, code, text)
+		if Remove(id) {
+			if c.listener != nil {
+				c.listener.OnCloseByFrontend(c, code, text)
+			}
 		}
 
 		// 默认的close handler
