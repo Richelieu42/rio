@@ -1,10 +1,11 @@
 package manager
 
 import (
+	"fmt"
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
-	"github.com/richelieu42/go-scales/src/core/strKit"
 	"github.com/richelieu42/go-scales/src/idKit"
+	"github.com/richelieu42/go-scales/src/jsonKit"
 	"sync"
 	"time"
 )
@@ -59,7 +60,7 @@ func (c *Channel) ReceiveMessages(listener Listener) {
 	}
 }
 
-// PushMessage 推送消息给 WebSocket客户端
+// PushMessage 推送消息给WebSocket客户端.
 /*
 @param messageType websocket.TextMessage || websocket.BinaryMessage
 */
@@ -79,6 +80,19 @@ func (c *Channel) PushMessage(messageType int, data []byte) error {
 	return err
 }
 
+// PushJson 先序列化为json字符串，再推送给WebSocket客户端.
+/*
+@param messageType websocket.TextMessage || websocket.BinaryMessage
+*/
+func (c *Channel) PushJson(messageType int, obj interface{}) error {
+	data, err := jsonKit.Marshal(obj)
+	if err != nil {
+		return err
+	}
+
+	return c.PushMessage(messageType, data)
+}
+
 func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 	id := idKit.NewULID()
 	c := &Channel{
@@ -92,7 +106,7 @@ func WrapToChannel(conn *websocket.Conn, listener Listener) *Channel {
 	conn.SetCloseHandler(func(code int, text string) error {
 		c.closed = true
 
-		reason := strKit.Format("closure by frontend with code(%d) and text(%s)", code, text)
+		reason := fmt.Sprintf("closure by frontend with code(%d) and text(%s)", code, text)
 		Remove(id, reason)
 
 		if c.listener != nil {
