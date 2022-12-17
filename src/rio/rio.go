@@ -47,8 +47,8 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 			lock:     new(sync.Mutex),
 			listener: listener,
 		}
+		/* 监听: WebSocket客户端主动关闭连接 */
 		conn.SetCloseHandler(func(code int, text string) error {
-			// 前端主动关闭
 			if Remove(c.id) {
 				c.listener.OnCloseByFrontend(c, code, text)
 			}
@@ -60,7 +60,7 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 		})
 		Add(c)
 		listener.OnHandshake(c)
-		// 接收WebSocket客户端发来的消息
+		/* 接收WebSocket客户端发来的消息 */
 		for {
 			messageType, p, err := conn.ReadMessage()
 			if err != nil {

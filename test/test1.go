@@ -4,7 +4,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/strKit"
-	"github.com/richelieu42/rio/src/manager"
 	"github.com/richelieu42/rio/src/rio"
 	"github.com/sirupsen/logrus"
 	"net/http"
@@ -27,12 +26,12 @@ func (t *TestListener) OnFailureToUpgrade(ctx *gin.Context, err error) {
 		err)
 }
 
-func (t *TestListener) OnHandshake(c *manager.Channel) {
+func (t *TestListener) OnHandshake(c *rio.Channel) {
 	logrus.Infof("Channel(id: %s) is established.", c.GetId())
 	_ = c.PushMessage(websocket.TextMessage, []byte(strKit.Format("Hello, id of this channel is [%s].", c.GetId())))
 }
 
-func (t *TestListener) OnMessage(c *manager.Channel, messageType int, data []byte) {
+func (t *TestListener) OnMessage(c *rio.Channel, messageType int, data []byte) {
 	text := string(data)
 	logrus.Infof("Channel(id: %s) receives a message(type: %d, text: %s)", c.GetId(), messageType, text)
 
@@ -41,11 +40,11 @@ func (t *TestListener) OnMessage(c *manager.Channel, messageType int, data []byt
 	}
 }
 
-func (t *TestListener) OnCloseByFrontend(c *manager.Channel, code int, text string) {
+func (t *TestListener) OnCloseByFrontend(c *rio.Channel, code int, text string) {
 	logrus.Infof("Channel(id: %s) is closed by frontend with code(%d) and text(%s).", c.GetId(), code, text)
 }
 
-func (t *TestListener) OnCloseByBackend(c *manager.Channel) {
+func (t *TestListener) OnCloseByBackend(c *rio.Channel) {
 	logrus.Infof("Channel(id: %s) is closed by backend.", c.GetId())
 }
 
