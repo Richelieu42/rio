@@ -60,6 +60,7 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 		})
 		Add(c)
 		listener.OnHandshake(c)
+		// 接收WebSocket客户端发来的消息
 		for {
 			messageType, p, err := conn.ReadMessage()
 			if err != nil {
