@@ -64,7 +64,11 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 			messageType, p, err := conn.ReadMessage()
 			if err != nil {
 				if Remove(c.id) {
-					listener.OnCloseByBackend(c)
+					if ce, ok := err.(*websocket.CloseError); ok {
+						listener.OnCloseByFrontend(c, ce.Code, ce.Text)
+					} else {
+						listener.OnCloseByBackend(c)
+					}
 				}
 				break
 			}

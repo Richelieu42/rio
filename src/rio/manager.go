@@ -32,9 +32,6 @@ func Remove(id string) bool {
 	lock.Lock()
 	defer lock.Unlock()
 
-	c, ok := mapKit.Remove(all, id)
-	if ok {
-		c.closed = true
-	}
+	_, ok := mapKit.Remove(all, id)
 	return ok
 }
