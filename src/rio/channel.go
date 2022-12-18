@@ -16,7 +16,7 @@ type (
 
 		bsId      string
 		group     string
-		userId    string
+		user      string
 		listener  Listener
 		extraData map[string]interface{}
 	}
@@ -24,6 +24,22 @@ type (
 
 func (c *Channel) GetId() string {
 	return c.id
+}
+
+func (c *Channel) GetGroup() string {
+	return c.group
+}
+
+func (c *Channel) GetUser() string {
+	return c.user
+}
+
+func (c *Channel) GetBsId() string {
+	return c.bsId
+}
+
+func (c *Channel) GetExtraData() map[string]interface{} {
+	return c.extraData
 }
 
 // Close 后端主动关闭连接
