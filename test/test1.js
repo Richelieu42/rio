@@ -2,15 +2,17 @@ var url = "",
     ws = new WebSocket(url);
 
 ws.onopen = function () {
-    console.info("onopen")
+    console.info("onopen.")
 };
 ws.onmessage = function (event) {
     var text = event.data;
-    console.info("onmessage: [" + text + "]");
+    console.info(`onmessage: [${text}].`);
 }
-ws.onerror = function () {
-    console.info("onerror")
+ws.onerror = function (ev) {
+    console.error("onerror.")
+    console.error(ev)
 };
-ws.onclose = function () {
-    console.info("onclose")
+ws.onclose = function (ev) {
+    console.info(`onclose with code(${ev.code}), reason(${ev.reason}) and wasClean(${ev.wasClean}).`)
+    console.error(ev)
 };
