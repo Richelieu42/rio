@@ -11,6 +11,7 @@ type (
 		id   string
 		conn *websocket.Conn
 
+		// lock 向前端推送消息时会加解锁
 		lock *sync.Mutex
 
 		bsId      string
