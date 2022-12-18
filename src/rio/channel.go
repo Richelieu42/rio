@@ -42,6 +42,10 @@ func (c *Channel) GetExtraData() map[string]interface{} {
 	return c.extraData
 }
 
+func (c *Channel) SetExtraData(extraData map[string]interface{}) {
+	c.extraData = extraData
+}
+
 // Close 后端主动关闭连接
 func (c *Channel) Close() {
 	_ = c.conn.Close()
