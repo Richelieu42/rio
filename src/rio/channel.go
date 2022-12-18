@@ -13,10 +13,11 @@ type (
 
 		lock *sync.Mutex
 
-		bsId     string
-		group    string
-		userId   string
-		listener Listener
+		bsId      string
+		group     string
+		userId    string
+		listener  Listener
+		extraData map[string]interface{}
 	}
 )
 
