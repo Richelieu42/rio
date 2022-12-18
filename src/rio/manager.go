@@ -8,14 +8,14 @@ import (
 
 var (
 	// 读写锁
-	lock = new(sync.RWMutex)
+	managerLock = new(sync.RWMutex)
 
 	all = make(map[string]*Channel)
 )
 
 func Add(c *Channel) {
-	lock.Lock()
-	defer lock.Unlock()
+	managerLock.Lock()
+	defer managerLock.Unlock()
 
 	all[c.id] = c
 }
@@ -29,8 +29,8 @@ func Remove(id string) bool {
 		return false
 	}
 
-	lock.Lock()
-	defer lock.Unlock()
+	managerLock.Lock()
+	defer managerLock.Unlock()
 
 	_, ok := mapKit.Remove(all, id)
 	return ok
