@@ -10,13 +10,13 @@ var (
 	// rwLock 读写锁
 	rwLock = new(sync.RWMutex)
 
-	// allMap key: id属性
+	// allMap key: id属性（一对一）
 	allMap = make(map[string]*bean.Channel)
-	// groupMap key: group属性
-	groupMap = make(map[string]*bean.Channel)
-	// userMap key: user属性
-	userMap = make(map[string]*bean.Channel)
-	// bdIdMap key: bsId属性
+	// groupMap key: group属性（一对多）
+	groupMap = make(map[string][]*bean.Channel)
+	// userMap key: user属性（一对多）
+	userMap = make(map[string][]*bean.Channel)
+	// bdIdMap key: bsId属性（一对一）
 	bdIdMap = make(map[string]*bean.Channel)
 )
 

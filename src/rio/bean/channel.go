@@ -80,20 +80,14 @@ func (channel *Channel) Close() {
 	}
 }
 
-// PushTextMessage 推送 文本消息 给浏览器
-func (channel *Channel) PushTextMessage(data []byte) error {
+// PushMessage 推送 文本消息 给浏览器
+/*
+@param messageType websocket.TextMessage || websocket.BinaryMessage
+*/
+func (channel *Channel) PushMessage(messageType int, data []byte) error {
 	// 防止panic: concurrent write to websocket connection
 	channel.lock.Lock()
 	defer channel.lock.Unlock()
 
-	return channel.conn.WriteMessage(websocket.TextMessage, data)
-}
-
-// PushBinaryMessage 推送 二进制消息 给浏览器
-func (channel *Channel) PushBinaryMessage(data []byte) error {
-	// 防止panic: concurrent write to websocket connection
-	channel.lock.Lock()
-	defer channel.lock.Unlock()
-
-	return channel.conn.WriteMessage(websocket.BinaryMessage, data)
+	return channel.conn.WriteMessage(messageType, data)
 }
