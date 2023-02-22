@@ -3,7 +3,6 @@ package bean
 import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/idKit"
-	"github.com/richelieu42/go-scales/src/jsonKit"
 	"github.com/richelieu42/rio/src/rio/manager"
 	"sync"
 )
@@ -13,7 +12,7 @@ type (
 		id   string
 		conn *websocket.Conn
 
-		// lock 向前端推送消息时会加解锁
+		// lock 向前端推送消息时会用到
 		lock *sync.Mutex
 
 		bsId      string
@@ -81,27 +80,20 @@ func (channel *Channel) Close() {
 	}
 }
 
-// PushMessage 推送消息给WebSocket客户端.
-/*
-@param messageType websocket.TextMessage || websocket.BinaryMessage
-*/
-func (channel *Channel) PushMessage(messageType int, data []byte) error {
+// PushTextMessage 推送 文本消息 给浏览器
+func (channel *Channel) PushTextMessage(data []byte) error {
 	// 防止panic: concurrent write to websocket connection
 	channel.lock.Lock()
 	defer channel.lock.Unlock()
 
-	return channel.conn.WriteMessage(messageType, data)
+	return channel.conn.WriteMessage(websocket.TextMessage, data)
 }
 
-// PushJson 先序列化为json字符串，再推送给WebSocket客户端.
-/*
-@param messageType websocket.TextMessage || websocket.BinaryMessage
-*/
-func (channel *Channel) PushJson(messageType int, obj interface{}) error {
-	data, err := jsonKit.Marshal(obj)
-	if err != nil {
-		return err
-	}
+// PushBinaryMessage 推送 二进制消息 给浏览器
+func (channel *Channel) PushBinaryMessage(data []byte) error {
+	// 防止panic: concurrent write to websocket connection
+	channel.lock.Lock()
+	defer channel.lock.Unlock()
 
-	return channel.PushMessage(messageType, data)
+	return channel.conn.WriteMessage(websocket.BinaryMessage, data)
 }
