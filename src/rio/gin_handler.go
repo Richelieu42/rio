@@ -3,10 +3,10 @@ package rio
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
-	"github.com/richelieu42/go-scales/src/assertKit"
-	"github.com/richelieu42/go-scales/src/idKit"
+	"github.com/richelieu42/go-scales/src/core/errorKit"
+	"github.com/richelieu42/rio/src/rio/bean"
+	"github.com/richelieu42/rio/src/rio/manager"
 	"net/http"
-	"sync"
 	"time"
 )
 
@@ -14,9 +14,9 @@ import (
 /*
 @param listener 不能为nil
 */
-func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
-	if err := assertKit.NotNil(listener, "listener"); err != nil {
-		return nil, err
+func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
+	if listener == nil {
+		return nil, errorKit.Simple("param listener mustn't be nil")
 	}
 
 	var upgrader = websocket.Upgrader{
@@ -41,16 +41,11 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 		}
 		defer conn.Close()
 
-		c := &Channel{
-			id:       idKit.NewULID(),
-			conn:     conn,
-			lock:     new(sync.Mutex),
-			listener: listener,
-		}
+		channel := bean.NewChannel(conn, listener)
 		/* 监听: WebSocket客户端主动关闭连接 */
 		conn.SetCloseHandler(func(code int, text string) error {
-			if Remove(c.id) {
-				c.listener.OnCloseByFrontend(c, code, text)
+			if manager.RemoveChannel(channel) {
+				channel.GetListener().OnCloseByFrontend(channel, code, text)
 			}
 
 			// 默认的close handler
@@ -58,22 +53,22 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 			_ = conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
 			return nil
 		})
-		Add(c)
-		listener.OnHandshake(c)
+		manager.AddChannel(channel)
+		listener.OnHandshake(channel)
 		/* 接收WebSocket客户端发来的消息 */
 		for {
 			messageType, p, err := conn.ReadMessage()
 			if err != nil {
-				if Remove(c.id) {
+				if manager.RemoveChannel(channel) {
 					if ce, ok := err.(*websocket.CloseError); ok {
-						listener.OnCloseByFrontend(c, ce.Code, ce.Text)
+						listener.OnCloseByFrontend(channel, ce.Code, ce.Text)
 					} else {
-						listener.OnCloseByBackend(c)
+						listener.OnCloseByBackend(channel)
 					}
 				}
 				break
 			}
-			listener.OnMessage(c, messageType, p)
+			listener.OnMessage(channel, messageType, p)
 		}
 	}, nil
 }
