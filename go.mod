@@ -5,7 +5,7 @@ go 1.20
 require (
 	github.com/gin-gonic/gin v1.9.0
 	github.com/gorilla/websocket v1.5.0
-	github.com/richelieu42/go-scales v1.1.21
+	github.com/richelieu42/go-scales v1.1.22
 )
 
 require (
