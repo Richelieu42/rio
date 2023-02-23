@@ -126,8 +126,8 @@ func (channel *Channel) Close() {
 	}
 }
 
-func (channel *Channel) BindBsId(bsId string) {
-	manager.BindBsId(channel, bsId)
+func (channel *Channel) BindBsid(bsid string) {
+	manager.BindBsId(channel, bsid)
 }
 
 func (channel *Channel) BindUser(user string) {

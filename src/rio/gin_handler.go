@@ -5,6 +5,7 @@ import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
 	"github.com/richelieu42/rio/src/rio/bean"
+	"github.com/richelieu42/rio/src/rio/consts"
 	"github.com/richelieu42/rio/src/rio/manager"
 	"net/http"
 	"time"
@@ -59,6 +60,15 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 		listener.OnHandshake(channel)
 
 		/* 绑定数据（通过url参数） */
+		if bsid, ok := ctx.GetQuery(consts.KeyBsId); ok {
+			channel.BindBsid(bsid)
+		}
+		if user, ok := ctx.GetQuery(consts.KeyUser); ok {
+			channel.BindUser(user)
+		}
+		if group, ok := ctx.GetQuery(consts.KeyGroup); ok {
+			channel.BindGroup(group)
+		}
 
 		/* 接收WebSocket客户端发来的消息 */
 		for {
