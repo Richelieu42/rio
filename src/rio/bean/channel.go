@@ -86,6 +86,11 @@ func (channel *Channel) SetClosed() {
 @param messageType websocket.TextMessage || websocket.BinaryMessage
 */
 func (channel *Channel) PushMessage(messageType int, data []byte) error {
+	if len(data) == 0 {
+		// 无效的推送
+		return nil
+	}
+
 	if channel.closed {
 		return errorKit.Simple("conn has already been closed")
 	}

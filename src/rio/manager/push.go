@@ -6,11 +6,6 @@ import (
 )
 
 func PushToBsId(messageType int, bsid string, data []byte) {
-	if len(data) == 0 {
-		// 无效的推送数据
-		return
-	}
-
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
