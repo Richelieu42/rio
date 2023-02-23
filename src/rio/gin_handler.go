@@ -57,6 +57,9 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 		})
 		manager.AddChannel(channel)
 		listener.OnHandshake(channel)
+
+		/* 绑定数据（通过url参数） */
+
 		/* 接收WebSocket客户端发来的消息 */
 		for {
 			messageType, data, err := conn.ReadMessage()
