@@ -125,3 +125,15 @@ func (channel *Channel) Close() {
 		channel.listener.OnCloseByBackend(channel)
 	}
 }
+
+func (channel *Channel) BindBsId(bsId string) {
+	manager.BindBsId(channel, bsId)
+}
+
+func (channel *Channel) BindUser(user string) {
+	manager.BindUser(channel, user)
+}
+
+func (channel *Channel) BindGroup(group string) {
+	manager.BindGroup(channel, group)
+}
