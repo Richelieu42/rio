@@ -4,9 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
-	"github.com/richelieu42/rio/src/rio/bean"
 	"github.com/richelieu42/rio/src/rio/consts"
-	"github.com/richelieu42/rio/src/rio/manager"
 	"net/http"
 	"time"
 )
@@ -15,7 +13,7 @@ import (
 /*
 @param listener 不能为nil
 */
-func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
+func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 	if listener == nil {
 		return nil, errorKit.Simple("param listener mustn't be nil")
 	}
@@ -42,12 +40,12 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 		}
 		defer conn.Close()
 
-		channel := bean.NewChannel(conn, listener)
+		channel := NewChannel(conn, listener)
 		/* 监听: WebSocket客户端主动关闭连接 */
 		conn.SetCloseHandler(func(code int, text string) error {
 			channel.SetClosed()
 
-			if manager.RemoveChannel(channel) {
+			if RemoveChannel(channel) {
 				channel.GetListener().OnCloseByFrontend(channel, code, text)
 			}
 
@@ -56,7 +54,7 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 			_ = conn.WriteControl(websocket.CloseMessage, message, time.Now().Add(time.Second))
 			return nil
 		})
-		manager.AddChannel(channel)
+		AddChannel(channel)
 		listener.OnHandshake(channel)
 
 		/* 绑定数据（通过url参数） */
@@ -76,7 +74,7 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 			if err != nil {
 				channel.SetClosed()
 
-				if manager.RemoveChannel(channel) {
+				if RemoveChannel(channel) {
 					if closeErr, ok := err.(*websocket.CloseError); ok {
 						listener.OnCloseByFrontend(channel, closeErr.Code, closeErr.Text)
 					} else {

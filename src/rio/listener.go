@@ -1,4 +1,4 @@
-package bean
+package rio
 
 import (
 	"github.com/gin-gonic/gin"

@@ -1,12 +1,11 @@
-package manager
+package rio
 
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"
 	"github.com/richelieu42/go-scales/src/core/sliceKit"
-	"github.com/richelieu42/rio/src/rio/bean"
 )
 
-func BindBsId(channel *bean.Channel, bsId string) {
+func BindBsId(channel *Channel, bsId string) {
 	rwLock.Lock()
 	defer rwLock.Unlock()
 
@@ -15,7 +14,7 @@ func BindBsId(channel *bean.Channel, bsId string) {
 	mapKit.Set(bsIdMap, bsId, channel)
 }
 
-func BindUser(channel *bean.Channel, user string) {
+func BindUser(channel *Channel, user string) {
 	rwLock.Lock()
 	defer rwLock.Unlock()
 
@@ -26,7 +25,7 @@ func BindUser(channel *bean.Channel, user string) {
 	mapKit.Set(userMap, user, s)
 }
 
-func BindGroup(channel *bean.Channel, group string) {
+func BindGroup(channel *Channel, group string) {
 	rwLock.Lock()
 	defer rwLock.Unlock()
 

@@ -1,4 +1,4 @@
-package manager
+package rio
 
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"

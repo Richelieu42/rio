@@ -1,10 +1,9 @@
-package bean
+package rio
 
 import (
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
 	"github.com/richelieu42/go-scales/src/idKit"
-	"github.com/richelieu42/rio/src/rio/manager"
 	"sync"
 )
 
@@ -121,19 +120,19 @@ func (channel *Channel) Close() {
 	channel.SetClosed()
 
 	_ = channel.conn.Close()
-	if manager.RemoveChannel(channel) {
+	if RemoveChannel(channel) {
 		channel.listener.OnCloseByBackend(channel)
 	}
 }
 
 func (channel *Channel) BindBsid(bsid string) {
-	manager.BindBsId(channel, bsid)
+	BindBsId(channel, bsid)
 }
 
 func (channel *Channel) BindUser(user string) {
-	manager.BindUser(channel, user)
+	BindUser(channel, user)
 }
 
 func (channel *Channel) BindGroup(group string) {
-	manager.BindGroup(channel, group)
+	BindGroup(channel, group)
 }
