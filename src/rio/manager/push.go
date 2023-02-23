@@ -9,7 +9,7 @@ func PushToBsId(messageType int, bsid string, data []byte) {
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
-	channel := mapKit.Get(bdIdMap, bsid)
+	channel := mapKit.Get(bsIdMap, bsid)
 	if channel == nil {
 		return
 	}

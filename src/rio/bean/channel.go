@@ -9,11 +9,12 @@ import (
 
 type (
 	Channel struct {
-		id   string
-		conn *websocket.Conn
-
+		// id 唯一id
+		id string
 		// lock 向前端推送消息时会用到
 		lock *sync.Mutex
+
+		conn *websocket.Conn
 
 		bsId      string
 		group     string
@@ -72,14 +73,6 @@ func (channel *Channel) GetListener() Listener {
 	return channel.listener
 }
 
-// Close 后端主动关闭连接
-func (channel *Channel) Close() {
-	_ = channel.conn.Close()
-	if manager.RemoveChannel(channel) {
-		channel.listener.OnCloseByBackend(channel)
-	}
-}
-
 // PushMessage 推送 文本消息 给浏览器
 /*
 @param messageType websocket.TextMessage || websocket.BinaryMessage
@@ -90,4 +83,15 @@ func (channel *Channel) PushMessage(messageType int, data []byte) error {
 	defer channel.lock.Unlock()
 
 	return channel.conn.WriteMessage(messageType, data)
+}
+
+// Close 后端主动关闭连接
+func (channel *Channel) Close() {
+	channel.lock.Lock()
+	defer channel.lock.Unlock()
+
+	_ = channel.conn.Close()
+
+	manager.RemoveChannel(channel)
+	channel.listener.OnCloseByBackend(channel)
 }
