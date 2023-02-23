@@ -33,9 +33,9 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 			return
 		}
 
+		// Upgrade（升级为WebSocket协议）
 		conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, ctx.Writer.Header())
 		if err != nil {
-			// 升级为WebSocket协议失败
 			listener.OnFailureToUpgrade(ctx, err)
 			return
 		}
@@ -57,18 +57,18 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 		listener.OnHandshake(channel)
 		/* 接收WebSocket客户端发来的消息 */
 		for {
-			messageType, p, err := conn.ReadMessage()
+			messageType, data, err := conn.ReadMessage()
 			if err != nil {
 				if manager.RemoveChannel(channel) {
-					if ce, ok := err.(*websocket.CloseError); ok {
-						listener.OnCloseByFrontend(channel, ce.Code, ce.Text)
+					if closeErr, ok := err.(*websocket.CloseError); ok {
+						listener.OnCloseByFrontend(channel, closeErr.Code, closeErr.Text)
 					} else {
 						listener.OnCloseByBackend(channel)
 					}
 				}
 				break
 			}
-			listener.OnMessage(channel, messageType, p)
+			listener.OnMessage(channel, messageType, data)
 		}
 	}, nil
 }
