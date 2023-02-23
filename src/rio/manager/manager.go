@@ -31,14 +31,14 @@ func AddChannel(channel *bean.Channel) {
 
 // RemoveChannel
 /*
-@return
+@return 是否移除成功？（以免多次移除）
 */
-func RemoveChannel(channel *bean.Channel) {
+func RemoveChannel(channel *bean.Channel) (flag bool) {
 	rwLock.Lock()
 	defer rwLock.Unlock()
 
 	id := channel.GetId()
-	_, _ = mapKit.Remove(allMap, id)
+	_, flag = mapKit.Remove(allMap, id)
 
 	bsId := channel.GetBsId()
 	if strKit.IsNotEmpty(bsId) {
@@ -58,4 +58,6 @@ func RemoveChannel(channel *bean.Channel) {
 		s, _ = sliceKit.Remove(s, channel)
 		mapKit.Set(groupMap, group, s)
 	}
+
+	return flag
 }

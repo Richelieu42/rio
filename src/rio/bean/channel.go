@@ -92,6 +92,7 @@ func (channel *Channel) Close() {
 
 	_ = channel.conn.Close()
 
-	manager.RemoveChannel(channel)
-	channel.listener.OnCloseByBackend(channel)
+	if manager.RemoveChannel(channel) {
+		channel.listener.OnCloseByBackend(channel)
+	}
 }
