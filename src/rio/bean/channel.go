@@ -2,6 +2,7 @@ package bean
 
 import (
 	"github.com/gorilla/websocket"
+	"github.com/richelieu42/go-scales/src/core/errorKit"
 	"github.com/richelieu42/go-scales/src/idKit"
 	"github.com/richelieu42/rio/src/rio/manager"
 	"sync"
@@ -21,6 +22,9 @@ type (
 		user      string
 		listener  Listener
 		extraData map[string]interface{}
+
+		// closed conn是否已经断掉？
+		closed bool
 	}
 )
 
@@ -73,25 +77,45 @@ func (channel *Channel) GetListener() Listener {
 	return channel.listener
 }
 
+func (channel *Channel) SetClosed() {
+	channel.closed = true
+}
+
 // PushMessage 推送 文本消息 给浏览器
 /*
 @param messageType websocket.TextMessage || websocket.BinaryMessage
 */
 func (channel *Channel) PushMessage(messageType int, data []byte) error {
+	if channel.closed {
+		return errorKit.Simple("conn has already been closed")
+	}
+
 	// 防止panic: concurrent write to websocket connection
 	channel.lock.Lock()
 	defer channel.lock.Unlock()
+
+	if channel.closed {
+		return errorKit.Simple("conn has already been closed")
+	}
 
 	return channel.conn.WriteMessage(messageType, data)
 }
 
 // Close 后端主动关闭连接
 func (channel *Channel) Close() {
+	if channel.closed {
+		return
+	}
+
 	channel.lock.Lock()
 	defer channel.lock.Unlock()
 
-	_ = channel.conn.Close()
+	if channel.closed {
+		return
+	}
+	channel.SetClosed()
 
+	_ = channel.conn.Close()
 	if manager.RemoveChannel(channel) {
 		channel.listener.OnCloseByBackend(channel)
 	}

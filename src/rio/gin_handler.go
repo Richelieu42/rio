@@ -44,6 +44,8 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 		channel := bean.NewChannel(conn, listener)
 		/* 监听: WebSocket客户端主动关闭连接 */
 		conn.SetCloseHandler(func(code int, text string) error {
+			channel.SetClosed()
+
 			if manager.RemoveChannel(channel) {
 				channel.GetListener().OnCloseByFrontend(channel, code, text)
 			}
@@ -59,6 +61,8 @@ func NewGinHandler(listener bean.Listener) (gin.HandlerFunc, error) {
 		for {
 			messageType, data, err := conn.ReadMessage()
 			if err != nil {
+				channel.SetClosed()
+
 				if manager.RemoveChannel(channel) {
 					if closeErr, ok := err.(*websocket.CloseError); ok {
 						listener.OnCloseByFrontend(channel, closeErr.Code, closeErr.Text)
