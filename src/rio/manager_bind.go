@@ -6,7 +6,7 @@ import (
 	"github.com/richelieu42/go-scales/src/core/strKit"
 )
 
-func BindData(channel *Channel, bsId, user, group string) {
+func bindData(channel *Channel, bsId, user, group string) {
 	rwLock.Lock()
 	defer rwLock.Unlock()
 

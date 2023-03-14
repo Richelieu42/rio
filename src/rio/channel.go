@@ -126,5 +126,5 @@ func (channel *Channel) Close() {
 }
 
 func (channel *Channel) BindData(bsId, user, group string) {
-	BindData(channel, bsId, user, group)
+	bindData(channel, bsId, user, group)
 }
