@@ -1,10 +1,11 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"unsafe"
+)
 
 func main() {
-	var data []byte
-	data = []byte("")
-	fmt.Println(data)
-	fmt.Println(len(data))
+	fmt.Println(unsafe.Sizeof(struct{}{})) // 0
+	fmt.Println(unsafe.Sizeof(struct{}{})) // 0
 }

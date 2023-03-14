@@ -5,7 +5,7 @@ import (
 	"github.com/richelieu42/go-scales/src/core/sliceKit"
 )
 
-func PushToBsId(messageType int, data []byte, bsid string) {
+func PushToBsid(messageType int, data []byte, bsid string) {
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
@@ -17,7 +17,7 @@ func PushToBsId(messageType int, data []byte, bsid string) {
 	_ = channel.PushMessage(messageType, data)
 }
 
-func PushToUser(messageType int, data []byte, user string, exceptBsIds ...string) {
+func PushToUser(messageType int, data []byte, user string, exceptBsids ...string) {
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
@@ -26,7 +26,7 @@ func PushToUser(messageType int, data []byte, user string, exceptBsIds ...string
 		return
 	}
 	set.Each(func(channel *Channel) bool {
-		if sliceKit.Contains(exceptBsIds, channel.GetBsId()) {
+		if sliceKit.Contains(exceptBsids, channel.GetBsId()) {
 			return false
 		}
 		// TODO: 输出推送失败的error
@@ -35,7 +35,7 @@ func PushToUser(messageType int, data []byte, user string, exceptBsIds ...string
 	})
 }
 
-func PushToGroup(messageType int, data []byte, group string, exceptBsIds ...string) {
+func PushToGroup(messageType int, data []byte, group string, exceptBsids ...string) {
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
@@ -44,7 +44,7 @@ func PushToGroup(messageType int, data []byte, group string, exceptBsIds ...stri
 		return
 	}
 	set.Each(func(channel *Channel) bool {
-		if sliceKit.Contains(exceptBsIds, channel.GetBsId()) {
+		if sliceKit.Contains(exceptBsids, channel.GetBsId()) {
 			return false
 		}
 		// TODO: 输出推送失败的error
