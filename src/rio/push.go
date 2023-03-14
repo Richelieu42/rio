@@ -21,30 +21,36 @@ func PushToUser(messageType int, data []byte, user string, exceptBsIds ...string
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
-	channels := mapKit.Get(userMap, user)
-
-	for _, channel := range channels {
+	set := mapKit.Get(userMap, user)
+	if set == nil {
+		return
+	}
+	set.Each(func(channel *Channel) bool {
 		if sliceKit.Contains(exceptBsIds, channel.GetBsId()) {
-			continue
+			return false
 		}
 		// TODO: 输出推送失败的error
 		_ = channel.PushMessage(messageType, data)
-	}
+		return false
+	})
 }
 
 func PushToGroup(messageType int, data []byte, group string, exceptBsIds ...string) {
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
-	channels := mapKit.Get(groupMap, group)
-
-	for _, channel := range channels {
+	set := mapKit.Get(groupMap, group)
+	if set == nil {
+		return
+	}
+	set.Each(func(channel *Channel) bool {
 		if sliceKit.Contains(exceptBsIds, channel.GetBsId()) {
-			continue
+			return false
 		}
 		// TODO: 输出推送失败的error
 		_ = channel.PushMessage(messageType, data)
-	}
+		return false
+	})
 }
 
 func PushToAll(messageType int, data []byte) {

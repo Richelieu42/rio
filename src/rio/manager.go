@@ -1,8 +1,8 @@
 package rio
 
 import (
+	mapset "github.com/deckarep/golang-set/v2"
 	"github.com/richelieu42/go-scales/src/core/mapKit"
-	"github.com/richelieu42/go-scales/src/core/sliceKit"
 	"github.com/richelieu42/go-scales/src/core/strKit"
 	"sync"
 )
@@ -14,9 +14,9 @@ var (
 	// allMap key: id属性（一对一）
 	allMap = make(map[string]*Channel)
 	// groupMap key: group属性（一对多）
-	groupMap = make(map[string][]*Channel)
+	groupMap = make(map[string]mapset.Set[*Channel])
 	// userMap key: user属性（一对多）
-	userMap = make(map[string][]*Channel)
+	userMap = make(map[string]mapset.Set[*Channel])
 	// bsIdMap key: bsId属性（一对一）
 	bsIdMap = make(map[string]*Channel)
 )
@@ -46,16 +46,14 @@ func RemoveChannel(channel *Channel) (flag bool) {
 
 	user := channel.GetUser()
 	if strKit.IsNotEmpty(user) {
-		s := mapKit.Get(userMap, user)
-		s, _ = sliceKit.Remove(s, channel)
-		mapKit.Set(userMap, user, s)
+		set := mapKit.Get(userMap, user)
+		set.Remove(channel)
 	}
 
 	group := channel.GetGroup()
 	if strKit.IsNotEmpty(group) {
-		s := mapKit.Get(groupMap, group)
-		s, _ = sliceKit.Remove(s, channel)
-		mapKit.Set(groupMap, group, s)
+		set := mapKit.Get(groupMap, group)
+		set.Remove(channel)
 	}
 
 	return flag

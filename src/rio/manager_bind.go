@@ -2,7 +2,6 @@ package rio
 
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"
-	"github.com/richelieu42/go-scales/src/core/sliceKit"
 	"github.com/richelieu42/go-scales/src/core/strKit"
 )
 
@@ -19,16 +18,14 @@ func BindData(channel *Channel, bsId, user, group string) {
 	if strKit.IsNotEmpty(user) {
 		channel.SetUser(user)
 
-		channels := mapKit.Get(userMap, user)
-		channels = sliceKit.Append(channels, channel)
-		mapKit.Set(userMap, user, channels)
+		set := mapKit.Get(userMap, user)
+		set.Add(channel)
 	}
 
 	if strKit.IsNotEmpty(group) {
 		channel.SetGroup(group)
 
-		channels := mapKit.Get(groupMap, group)
-		channels = sliceKit.Append(channels, channel)
-		mapKit.Set(groupMap, group, channels)
+		set := mapKit.Get(groupMap, group)
+		set.Add(channel)
 	}
 }
