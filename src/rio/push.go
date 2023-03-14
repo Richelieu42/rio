@@ -66,7 +66,7 @@ func PushToGroup(messageType int, data []byte, group string, exceptBsids ...stri
 	})
 }
 
-func PushToAll(messageType int, data []byte) {
+func PushToAll(messageType int, data []byte, exceptBsids ...string) {
 	if len(data) == 0 {
 		return
 	}
@@ -75,6 +75,10 @@ func PushToAll(messageType int, data []byte) {
 	defer rwLock.RUnlock()
 
 	for _, channel := range allMap {
+		if sliceKit.Contains(exceptBsids, channel.GetBsId()) {
+			continue
+		}
+
 		// TODO: 输出推送失败的error
 		_ = channel.PushMessage(messageType, data)
 	}
