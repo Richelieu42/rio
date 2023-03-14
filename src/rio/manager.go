@@ -47,13 +47,17 @@ func RemoveChannel(channel *Channel) (flag bool) {
 	user := channel.GetUser()
 	if strKit.IsNotEmpty(user) {
 		set := mapKit.Get(userMap, user)
-		set.Remove(channel)
+		if set != nil {
+			set.Remove(channel)
+		}
 	}
 
 	group := channel.GetGroup()
 	if strKit.IsNotEmpty(group) {
 		set := mapKit.Get(groupMap, group)
-		set.Remove(channel)
+		if set != nil {
+			set.Remove(channel)
+		}
 	}
 
 	return flag

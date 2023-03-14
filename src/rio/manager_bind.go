@@ -2,6 +2,7 @@ package rio
 
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"
+	"github.com/richelieu42/go-scales/src/core/setKit"
 	"github.com/richelieu42/go-scales/src/core/strKit"
 )
 
@@ -19,6 +20,10 @@ func BindData(channel *Channel, bsId, user, group string) {
 		channel.SetUser(user)
 
 		set := mapKit.Get(userMap, user)
+		if set == nil {
+			set = setKit.NewSet[*Channel](false)
+			mapKit.Set(userMap, user, set)
+		}
 		set.Add(channel)
 	}
 
@@ -26,6 +31,10 @@ func BindData(channel *Channel, bsId, user, group string) {
 		channel.SetGroup(group)
 
 		set := mapKit.Get(groupMap, group)
+		if set == nil {
+			set = setKit.NewSet[*Channel](false)
+			mapKit.Set(groupMap, group, set)
+		}
 		set.Add(channel)
 	}
 }
