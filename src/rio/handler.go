@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	"github.com/richelieu42/go-scales/src/core/errorKit"
+	"github.com/richelieu42/go-scales/src/core/strKit"
 	"github.com/richelieu42/rio/src/rio/consts"
 	"net/http"
 	"time"
@@ -57,15 +58,12 @@ func NewGinHandler(listener Listener) (gin.HandlerFunc, error) {
 		AddChannel(channel)
 		listener.OnHandshake(channel)
 
-		/* 绑定数据（通过url参数） */
-		if bsid, ok := ctx.GetQuery(consts.KeyBsId); ok {
-			channel.BindBsid(bsid)
-		}
-		if user, ok := ctx.GetQuery(consts.KeyUser); ok {
-			channel.BindUser(user)
-		}
-		if group, ok := ctx.GetQuery(consts.KeyGroup); ok {
-			channel.BindGroup(group)
+		/* 绑定数据（通过url参数，有的话） */
+		bsid := ctx.Query(consts.KeyBsid)
+		user := ctx.Query(consts.KeyUser)
+		group := ctx.Query(consts.KeyGroup)
+		if strKit.IsAllEmpty(bsid, user, group) {
+			channel.BindData(bsid, user, group)
 		}
 
 		/* 接收WebSocket客户端发来的消息 */

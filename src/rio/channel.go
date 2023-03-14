@@ -125,14 +125,6 @@ func (channel *Channel) Close() {
 	}
 }
 
-func (channel *Channel) BindBsid(bsid string) {
-	BindBsId(channel, bsid)
-}
-
-func (channel *Channel) BindUser(user string) {
-	BindUser(channel, user)
-}
-
-func (channel *Channel) BindGroup(group string) {
-	BindGroup(channel, group)
+func (channel *Channel) BindData(bsId, user, group string) {
+	BindData(channel, bsId, user, group)
 }

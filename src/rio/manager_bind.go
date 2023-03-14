@@ -3,35 +3,32 @@ package rio
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"
 	"github.com/richelieu42/go-scales/src/core/sliceKit"
+	"github.com/richelieu42/go-scales/src/core/strKit"
 )
 
-func BindBsId(channel *Channel, bsId string) {
+func BindData(channel *Channel, bsId, user, group string) {
 	rwLock.Lock()
 	defer rwLock.Unlock()
 
-	channel.SetBsId(bsId)
+	if strKit.IsNotEmpty(bsId) {
+		channel.SetBsId(bsId)
 
-	mapKit.Set(bsIdMap, bsId, channel)
-}
+		mapKit.Set(bsIdMap, bsId, channel)
+	}
 
-func BindUser(channel *Channel, user string) {
-	rwLock.Lock()
-	defer rwLock.Unlock()
+	if strKit.IsNotEmpty(user) {
+		channel.SetUser(user)
 
-	channel.SetUser(user)
+		channels := mapKit.Get(userMap, user)
+		channels = sliceKit.Append(channels, channel)
+		mapKit.Set(userMap, user, channels)
+	}
 
-	s := mapKit.Get(userMap, user)
-	s = sliceKit.Append(s, channel)
-	mapKit.Set(userMap, user, s)
-}
+	if strKit.IsNotEmpty(group) {
+		channel.SetGroup(group)
 
-func BindGroup(channel *Channel, group string) {
-	rwLock.Lock()
-	defer rwLock.Unlock()
-
-	channel.SetGroup(group)
-
-	s := mapKit.Get(groupMap, group)
-	s = sliceKit.Append(s, channel)
-	mapKit.Set(groupMap, group, s)
+		channels := mapKit.Get(groupMap, group)
+		channels = sliceKit.Append(channels, channel)
+		mapKit.Set(groupMap, group, channels)
+	}
 }

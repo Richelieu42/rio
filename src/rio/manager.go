@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	// rwLock 读写锁
+	// rwLock （整体的）读写锁
 	rwLock = new(sync.RWMutex)
 
 	// allMap key: id属性（一对一）

@@ -1,7 +1,7 @@
 package consts
 
 const (
-	KeyBsId = "bsid"
+	KeyBsid = "bsid"
 
 	KeyUser = "user"
 
