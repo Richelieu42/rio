@@ -3,9 +3,14 @@ package rio
 import (
 	"github.com/richelieu42/go-scales/src/core/mapKit"
 	"github.com/richelieu42/go-scales/src/core/sliceKit"
+	"github.com/richelieu42/go-scales/src/core/strKit"
 )
 
 func PushToBsid(messageType int, data []byte, bsid string) {
+	if strKit.IsEmpty(bsid) || len(data) == 0 {
+		return
+	}
+
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
@@ -18,6 +23,10 @@ func PushToBsid(messageType int, data []byte, bsid string) {
 }
 
 func PushToUser(messageType int, data []byte, user string, exceptBsids ...string) {
+	if strKit.IsEmpty(user) || len(data) == 0 {
+		return
+	}
+
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
@@ -36,6 +45,10 @@ func PushToUser(messageType int, data []byte, user string, exceptBsids ...string
 }
 
 func PushToGroup(messageType int, data []byte, group string, exceptBsids ...string) {
+	if strKit.IsEmpty(group) || len(data) == 0 {
+		return
+	}
+
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 
@@ -54,6 +67,10 @@ func PushToGroup(messageType int, data []byte, group string, exceptBsids ...stri
 }
 
 func PushToAll(messageType int, data []byte) {
+	if len(data) == 0 {
+		return
+	}
+
 	rwLock.RLock()
 	defer rwLock.RUnlock()
 

@@ -39,6 +39,9 @@ func RemoveChannel(channel *Channel) (flag bool) {
 
 	id := channel.GetId()
 	_, flag = mapKit.Remove(allMap, id)
+	if !flag {
+		return false
+	}
 
 	bsId := channel.GetBsId()
 	if strKit.IsNotEmpty(bsId) {
@@ -69,7 +72,7 @@ func RemoveChannel(channel *Channel) (flag bool) {
 		}
 	}
 
-	return flag
+	return true
 }
 
 func bindData(channel *Channel, bsId, user, group string) {
