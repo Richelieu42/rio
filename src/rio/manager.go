@@ -50,6 +50,10 @@ func RemoveChannel(channel *Channel) (flag bool) {
 		set := mapKit.Get(userMap, user)
 		if set != nil {
 			set.Remove(channel)
+			// 释放资源
+			if set.Cardinality() == 0 {
+				mapKit.Remove(userMap, user)
+			}
 		}
 	}
 
@@ -58,6 +62,10 @@ func RemoveChannel(channel *Channel) (flag bool) {
 		set := mapKit.Get(groupMap, group)
 		if set != nil {
 			set.Remove(channel)
+			// 释放资源
+			if set.Cardinality() == 0 {
+				mapKit.Remove(groupMap, group)
+			}
 		}
 	}
 
